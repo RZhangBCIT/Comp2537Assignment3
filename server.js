@@ -3,8 +3,14 @@ const app = express()
 app.set('view engine', 'ejs');
 
 
-app.listen(1989, (err) => {
-    if (err) console.log(err);
+const mongoose = require('mongoose');
+
+app.listen(process.env.PORT || 1989, function (err) {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log("Listening on port 1444")
+    }
 })
 
 /**
@@ -85,3 +91,20 @@ app.get('/profile/:id', function (req, res) {
     });
 
 })
+
+const bodyparser = require("body-parser");
+app.use(bodyparser.urlencoded({
+    extended: true
+}))
+
+mongoose.connect("mongodb+srv://pokemon:comp2537@cluster0.thyz8.mongodb.net/Assignment3?retryWrites=true&w=majority", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
+
+const userSchema = new mongoose.Schema({
+    username: String,
+    password: Number
+});
+
+const userModel = mongoose.model("users", userSchema);
