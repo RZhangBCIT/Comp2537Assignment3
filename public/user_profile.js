@@ -34,7 +34,7 @@ function searchPage() {
         url: "http://localhost:1989/search",
         type: "get",
         success: (res) => {
-            window.location.href="/index.html"
+            window.location.href="/search.html"
         }
     })
 }

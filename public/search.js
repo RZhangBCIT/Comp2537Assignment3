@@ -6,7 +6,7 @@ generation_global = ""
 function processPokemonResponse(data) {
     add_image += `<div class="pokemon_image">`
     add_image += `<a href="/profile/${data.id}">`
-    add_image += `<img src="${data.sprites.other["official-artwork"].front_default}">`
+    add_image += `<img class="pokemonPic" src="${data.sprites.other["official-artwork"].front_default}">`
     add_image += `</a>`
     add_image += `<h2 class="pokemon_name"> ${data.name} </h2>`
     add_image += `</div>`
@@ -18,7 +18,7 @@ function processType(data) {
         if (data.types[i].type.name === type_global) {
             add_image += `<div class="pokemon_image">`
             add_image += `<a href="/profile/${data.id}">`
-            add_image += `<img src="${data.sprites.other["official-artwork"].front_default}"`
+            add_image += `<img class="pokemonPic" src="${data.sprites.other["official-artwork"].front_default}"`
             add_image += `</a>`
             add_image += `<h2 class="pokemon_name"> ${data.name} </h2>`
             add_image += `</div>`
@@ -139,6 +139,24 @@ function displayGeneration(gen_) {
     }
 }
 
+function addToTimeline(data) {
+    $.ajax({
+        url: "http://localhost1989/viewedPokemon",
+        type: "put",
+        data: {
+            pokemon: `${data.name}`
+        }
+    })
+}
+
+function viewedTimeline(data) {
+    $.ajax({
+        url: `https://pokeapi.co/api/v2/pokemon/${req.params.id}`,
+        type: "get",
+        success: addToTimeline
+    })
+}
+
 function setup() {
 
     $("#pokemon_type").change(() => {
@@ -160,6 +178,9 @@ function setup() {
         pokemon_habitat = $("#habitat option:selected").val();
         displayHabitat($("#habitat option:selected").val())
     })
+
+    $("body").on("click", ".pokemonPic", viewedTimeline(data))
+    $("body").on("click", ".pokemon_name", viewedTimeline(data))
 }
 
 $(document).ready(setup)

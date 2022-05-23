@@ -105,7 +105,7 @@ app.get('/profile/:id', function (req, res) {
 })
 
 app.get('/search', (req, res) => {
-    res.sendFile(__dirname + '/public/index.html')
+    res.sendFile(__dirname + '/public/search.html')
 })
 
 const bodyparser = require("body-parser");
@@ -206,13 +206,11 @@ app.get('/user_profile', (req, res) => {
 app.post('/authenticateUser', (req, res) => {
     inputUser = req.body.username;
     inputPass = req.body.pass;
-    console.log(req.body.pass);
 
     if (userModel.find({username: inputUser}, (err, user) => {
         if (err) {
             console.log(err);
         } else if (inputPass === user[0].pass) {
-            console.log(user)
             req.session.loggedIn = true;
             req.session.username = user[0].username;
             res.redirect('/user_profile');
@@ -234,7 +232,21 @@ app.get('/getUserInfo', function(req, res) {
             console.log(err);
         } else {
             res.send(user)
-            console.log(user)
         }
     })
+})
+
+app.put('/viewedPokemon', function (req, res) {
+    console.log(req.body);
+    currentPokemon = req.body.
+    userModel.timeline.create({
+        'pokemon': req.body.pokemon
+    }, function (err, data) {
+        if (err) {
+            console.log("Error! " + err);
+        } else {
+            console.log("Data: " + data);
+        }
+        res.send(data);
+    });
 })
