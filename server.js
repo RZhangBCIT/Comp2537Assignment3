@@ -3,7 +3,7 @@ const app = express();
 const session = require('express-session');
 app.set('view engine', 'ejs');
 
-
+const oneDay = 1000 * 60 * 60 * 24;
 const mongoose = require('mongoose');
 
 app.listen(process.env.PORT || 1989, function (err) {
@@ -25,7 +25,11 @@ app.use(session({
  * req = request object, res = response object
  */
 app.get('/', function (req, res) {
-    res.sendFile(__dirname + '/public/login.html');
+    if (req.session.loggedIn) {
+        res.sendFile(__dirname + '/public/user_profile.html')
+    } else {
+        res.sendFile(__dirname + '/public/login.html');
+    }
 })
 
 /**
@@ -114,7 +118,10 @@ const userSchema = new mongoose.Schema({
     username: String,
     pass: String,
     firstName: String,
-    lastName: String
+    lastName: String,
+    cart: Array,
+    pastOrders: Array,
+    timeline: Array
 });
 
 const userModel = mongoose.model("users", userSchema);
@@ -180,10 +187,31 @@ app.put('/createAccount', function (req, res) {
     });
 });
 
-function authenticate(req, res, next) {
-    if (req.session.authenticated) {
-        next();
-    } else {
-        res.redirect('/')
-    }
-}
+// function authenticate(req, res, next) {
+//     if (req.session.authenticated) {
+//         next();
+//     } else {
+//         res.redirect('/')
+//     }
+// }
+app.get('/user_profile', (req, res) => {
+    res.sendFile(__dirname + '/public/user_profile.html');
+})
+
+app.post('/authenticateUser', (req, res) => {
+    inputUser = req.body.username;
+    inputPass = req.body.pass;
+    console.log(req.body.pass);
+
+    if (userModel.find({username: inputUser}, (err, user) => {
+        if (err) {
+            console.log(err);
+        } else if (inputPass === user[0].pass) {
+            console.log(user)
+            req.session.loggedIn = true;
+            req.session.username = inputUser;
+            res.redirect('/user_profile');
+        }
+    }))
+    console.log(`Welcome, ${req.body.username}!`)
+});
