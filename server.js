@@ -104,7 +104,12 @@ app.get('/profile/:id', function (req, res) {
 
 })
 
+app.get('/search', (req, res) => {
+    res.sendFile(__dirname + '/public/index.html')
+})
+
 const bodyparser = require("body-parser");
+const res = require('express/lib/response');
 app.use(bodyparser.urlencoded({
     extended: true
 }))
@@ -209,9 +214,27 @@ app.post('/authenticateUser', (req, res) => {
         } else if (inputPass === user[0].pass) {
             console.log(user)
             req.session.loggedIn = true;
-            req.session.username = inputUser;
+            req.session.username = user[0].username;
             res.redirect('/user_profile');
         }
     }))
     console.log(`Welcome, ${req.body.username}!`)
 });
+
+app.get('/logout', (req, res) => {
+    req.session.destroy;
+    res.redirect('/');
+})
+
+app.get('/getUserInfo', function(req, res) {
+    currentUser = req.session.username;
+
+    userModel.find({username: currentUser}, (err, user) => {
+        if (err) {
+            console.log(err);
+        } else {
+            res.send(user)
+            console.log(user)
+        }
+    })
+})

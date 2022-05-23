@@ -10,7 +10,6 @@ function authenticateUser(req) {
             pass: inputPass
         },
         success: (res) => {
-            console.log("I am here!")
             window.location.href="/user_profile.html"
         }
     })
