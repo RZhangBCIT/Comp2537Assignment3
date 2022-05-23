@@ -1,5 +1,6 @@
-const express = require('express')
-const app = express()
+const express = require('express');
+const app = express();
+const session = require('express-session');
 app.set('view engine', 'ejs');
 
 
@@ -9,16 +10,23 @@ app.listen(process.env.PORT || 1989, function (err) {
     if (err) {
         console.log(err);
     } else {
-        console.log("Listening on port 1444")
+        console.log("Listening on port 1989")
     }
 })
+
+app.use(session({
+    secret: 'Molly',
+    saveUninitialized: true,
+    cookie: { maxAge: oneDay },
+    resave: false
+}))
 
 /**
  * req = request object, res = response object
  */
-// app.get('/', function (req, res) {
-//     res.sendFile(__dirname + 'index.html');
-// })
+app.get('/', function (req, res) {
+    res.sendFile(__dirname + '/public/login.html');
+})
 
 /**
  * Sends what is in public if link/route does not match.
@@ -104,7 +112,78 @@ mongoose.connect("mongodb+srv://pokemon:comp2537@cluster0.thyz8.mongodb.net/Assi
 
 const userSchema = new mongoose.Schema({
     username: String,
-    password: Number
+    pass: String,
+    firstName: String,
+    lastName: String
 });
 
 const userModel = mongoose.model("users", userSchema);
+
+// checks to see if the database is connected by logging the JSON data in console
+// app.get('/users/getAll', (req, res) => {
+//     userModel.find({}, function (err, data) {
+//         if (err) {
+//             console.log("Error " + err);
+//         } else {
+//             console.log("Data " + data);
+//         }
+//         res.send(data);
+//     });
+// })
+
+app.get("/createAccount.html", (req, res) => {
+    res.sendFile(path.join(htmlPath + '/public/createAccount.html'));
+});
+
+// app.post("/createAccount", (req, res, next) => {
+//         console.log(`username: ${req.body.userName}\n
+//         password: ${req.body.password}\n
+//         confirmed password: ${req.body.confirmPassword}\n
+//         first name: ${req.body.firstName}\n
+//         last name: ${req.body.lastName}`);
+//         userModel.create({
+//             'username': req.body.userName,
+//             'pass': req.body.confirmPassword,
+//             'firstName': req.body.firstName,
+//             'lastName': req.body.lastName
+//         }, function (err, data) {
+//             if (err) {
+//                 console.log("Error detected! " + err);
+//             } else {
+//                 console.log("User Info: " + data);
+//             }
+//             res.send(data);
+//         });
+
+//     }
+// );
+
+// insert new user into db
+app.put('/createAccount', function (req, res) {
+    console.log(`username: ${req.body.username}\n
+        password: ${req.body.pass}\n
+        first name: ${req.body.firstName}\n
+        last name: ${req.body.lastName}`);
+    console.log(req.body);
+    userModel.create({
+        'username': req.body.username,
+        'pass': req.body.pass,
+        'firstName': req.body.firstName,
+        'lastName': req.body.lastName
+    }, function (err, data) {
+        if (err) {
+            console.log("Error detected! " + err);
+        } else {
+            console.log("User Info: " + data);
+        }
+        res.send(data);
+    });
+});
+
+function authenticate(req, res, next) {
+    if (req.session.authenticated) {
+        next();
+    } else {
+        res.redirect('/')
+    }
+}
